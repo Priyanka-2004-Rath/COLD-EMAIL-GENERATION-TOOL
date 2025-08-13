@@ -1,22 +1,22 @@
-# portfolio.py
-import pandas as pd
 import chromadb
 import uuid
+import pandas as pd
 
 class Portfolio:
     def __init__(self, file_path="app/resources/my_portfolio.csv"):
         self.file_path = file_path
         self.data = pd.read_csv(file_path)
 
-        # Use in-memory Chroma client for Streamlit Cloud
+        # In-memory ChromaDB client (no SQLite persistence)
         self.chroma_client = chromadb.Client(chromadb.Settings(
-            persist_directory=None,  # disables file persistence
+            persist_directory=None,  # disables persistence
             anonymized_telemetry=False
         ))
 
         self.collection = self.chroma_client.get_or_create_collection(name="portfolio")
 
     def load_portfolio(self):
+        # Load CSV data into Chroma collection in-memory
         if not self.collection.count():
             for _, row in self.data.iterrows():
                 self.collection.add(
