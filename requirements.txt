@@ -2,6 +2,8 @@ streamlit==1.48.0
 langchain==0.3.27
 pandas==2.3.1
 chromadb==1.0.16
+duckdb
+clickhouse-driver
 beautifulsoup4==4.13.4
 python-dotenv
 langchain-core
