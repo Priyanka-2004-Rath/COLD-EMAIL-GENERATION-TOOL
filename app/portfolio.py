@@ -1,29 +1,21 @@
+import pandas as pd
 import chromadb
 import uuid
-import pandas as pd
+
 
 class Portfolio:
-    def __init__(self, file_path="app/resources/my_portfolio.csv"):
+    def __init__(self, file_path="app/resource/my_portfolio.csv"):
         self.file_path = file_path
         self.data = pd.read_csv(file_path)
-
-        # In-memory ChromaDB client (no SQLite persistence)
-        self.chroma_client = chromadb.Client(chromadb.Settings(
-            persist_directory=None,  # disables persistence
-            anonymized_telemetry=False
-        ))
-
+        self.chroma_client = chromadb.PersistentClient('vectorstore')
         self.collection = self.chroma_client.get_or_create_collection(name="portfolio")
 
     def load_portfolio(self):
-        # Load CSV data into Chroma collection in-memory
         if not self.collection.count():
             for _, row in self.data.iterrows():
-                self.collection.add(
-                    documents=[row["Techstack"]],
-                    metadatas=[{"links": row["Links"]}],
-                    ids=[str(uuid.uuid4())]
-                )
+                self.collection.add(documents=row["Techstack"],
+                                    metadatas={"links": row["Links"]},
+                                    ids=[str(uuid.uuid4())])
 
     def query_links(self, skills):
         return self.collection.query(query_texts=skills, n_results=2).get('metadatas', [])
